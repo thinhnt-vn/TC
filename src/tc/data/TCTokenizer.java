@@ -47,4 +47,9 @@ public class TCTokenizer extends Tokenizer {
         return tokens.hasNext() ? tokens.next() : null;
     }
 
+    @Override
+    public void reset() {
+        super.reset(); //To change body of generated methods, choose Tools | Templates.
+        tokens = null;
+    }
 }

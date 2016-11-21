@@ -5,16 +5,29 @@
  */
 package tc.data;
 
+import Jama.Matrix;
 import java.io.BufferedReader;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author thinhnt
  */
 public class Document {
+
+    private String name;
     private BufferedReader reader;
-    private List<String> token;
+    private Map<String, Integer> tokensInDoc;
+    private int docLength;
+    private Matrix label;
+    private Matrix v;
+
+    public Document(String name, BufferedReader reader) {
+        this.name = name;
+        this.reader = reader;
+        this.tokensInDoc = new HashMap<>();
+    }
 
     public BufferedReader getReader() {
         return reader;
@@ -24,11 +37,32 @@ public class Document {
         this.reader = reader;
     }
 
-    public List<String> getToken() {
-        return token;
+    public String getName() {
+        return name;
+    }
+    
+    public int getDocLeng(){
+        return docLength;
+    }
+    
+    public Map<String, Integer> getTokensInDoc(){
+        return tokensInDoc;
+    }
+    
+    public void setVector(Matrix v){
+        this.v = v;
+    }
+    
+    public void addToken(String token) {
+        docLength++;
+        int oldVal = tokensInDoc.containsKey(token) ? tokensInDoc.get(token) : 0;
+        if (oldVal == 0) {
+            DocumentLoader.increaseDocCount(token);
+        }
+        tokensInDoc.put(token, oldVal + 1);
     }
 
-    public void setToken(List<String> token) {
-        this.token = token;
+    public void setLabel(Matrix label) {
+        this.label = label;
     }
 }

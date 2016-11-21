@@ -7,16 +7,15 @@
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/StopwordFilter.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/AnalysisComponents.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/Document.java</file>
-            <file>file:/C:/Users/toant_000/Documents/Java/TC/tokenizer.log</file>
-            <file>file:/C:/Users/toant_000/Documents/Java/TC/stopwords.txt</file>
-            <file>file:/C:/Users/toant_000/Documents/Java/TC/data/30.tt</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/DocumentLoader.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/DataSetBuilder.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/TCAnalyzer.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/LowerCaseFilter.java</file>
-            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/Analyzer.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/Tokenizer.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/Analyzer.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/TokenStream.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/DataSet.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/TCTokenizer.java</file>
-            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/Filter.java</file>
         </group>
     </open-files>
 </project-private>

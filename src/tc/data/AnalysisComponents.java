@@ -32,6 +32,7 @@ public class AnalysisComponents {
      * @param reader
      */
     public void setReader(Reader reader) {
+        inStream.reset();
         inStream.setReader(reader);
     }
 }
