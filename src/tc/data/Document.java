@@ -29,12 +29,12 @@ public class Document {
         this.tokensInDoc = new HashMap<>();
     }
 
-    public BufferedReader getReader() {
-        return reader;
-    }
-
     public void setReader(BufferedReader reader) {
         this.reader = reader;
+    }
+    
+    public BufferedReader getReader() {
+        return reader;
     }
 
     public String getName() {
@@ -53,6 +53,10 @@ public class Document {
         this.v = v;
     }
     
+    public Matrix getVector(){
+        return v;
+    }
+    
     public void addToken(String token) {
         docLength++;
         int oldVal = tokensInDoc.containsKey(token) ? tokensInDoc.get(token) : 0;
@@ -64,5 +68,9 @@ public class Document {
 
     public void setLabel(Matrix label) {
         this.label = label;
+    }
+    
+    public Matrix getLabel(){
+        return label;
     }
 }
