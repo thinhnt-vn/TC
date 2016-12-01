@@ -8,8 +8,12 @@ package tc.data;
 import Jama.Matrix;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,16 +29,15 @@ import tc.training.TrainingModel;
  *
  * @author thinhnt
  */
-public class DataSetBuilder {
+public class DataSetBuilder implements Serializable {
 
-    public final static String DATA_PATH = "data";
-    private String dataPath;
+    private File dataDir;
     private DataSet[] dataSets;
-    private Predicate<File> fileFilter;
+    transient private Predicate<File> fileFilter;
     private List<String> featureWords;
 
     public DataSetBuilder(String dataDir, Predicate<File> fileFilter) {
-        this.dataPath = dataDir;
+        this.dataDir = new File(dataDir);
         this.dataSets = new DataSet[5];
         this.fileFilter = fileFilter;
         for (int i = 0; i < 5; i++) {
@@ -43,7 +46,6 @@ public class DataSetBuilder {
     }
 
     public void build() {
-        File dataDir = new File(dataPath);
         DocumentLoader docLoader = new DocumentLoader(new TCAnalyzer());
         for (File f : dataDir.listFiles()) {
             if (fileFilter.test(f)) {
@@ -84,66 +86,62 @@ public class DataSetBuilder {
 
     private void tfidf4Set(DataSet set, int totalDoc, Map<String, Integer> docCount) {
         for (Document doc : set) {
-            tfidf4Doc(doc, totalDoc, docCount, featureWords);
+            Utils.tfidf4Doc(doc, totalDoc, docCount, featureWords);
         }
     }
 
-    public static void tfidf4Doc(Document doc, int totalDoc,
-            Map<String, Integer> docCount, List<String> featureWords) {
-        System.out.println("Compute: " + doc.getName());
-        int length = featureWords.size() + 1;
-        double[] v = new double[length];
-        v[0] = 1.0;
-        Map<String, Integer> tokensInDoc = doc.getTokensInDoc();
-        double s = 0;
-        for (int i = 1; i < length; i++) {
-            String word = featureWords.get(i - 1);
-            if (!tokensInDoc.containsKey(word)) {
-                v[i] = 0;
-            } else {
-                v[i] = tokensInDoc.get(word) * 1.0 / doc.getDocLeng()
-                        * totalDoc * 1.0 / docCount.get(word);
-                s += v[i] * v[i];
-            }
-        }
-        Matrix m = new Matrix(new double[][]{v});
-        m = m.times(1.0 / s);
-        m.set(0, 0, 1);
-        doc.setVector(m);
+    public List<String> getFeatureWords() {
+        return featureWords;
     }
 
     public DataSet[] getDataSets() {
         return dataSets;
     }
 
-    public static void main(String[] args) {
-        DataSetBuilder builder = new DataSetBuilder(DATA_PATH, new Predicate<File>() {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+//        DataSetBuilder builder = new DataSetBuilder(TCConstances.Path.DATA_PATH, new Predicate<File>() {
+//
+//            @Override
+//            public boolean test(File t) {
+//                String name = t.getName();
+//                return name.endsWith(".tt")
+//                        || name.endsWith(".kt")
+//                        || name.endsWith(".pl")
+//                        || name.endsWith(".cn");
+//            }
+//        });
+//        builder.build();
 
-            @Override
-            public boolean test(File t) {
-                String name = t.getName();
-                return name.endsWith(".tt")
-                        || name.endsWith(".kt")
-                        || name.endsWith(".pl")
-                        || name.endsWith(".cn");
-            }
-        });
-        builder.build();
+//        ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream("databuider"));
+//        stream.writeObject(builder);
+//        stream.close();
 
+        ObjectInputStream stream = new ObjectInputStream(new FileInputStream("databuider"));
+        DataSetBuilder builder = (DataSetBuilder) stream.readObject();
+        stream.close();
+        
         DataSet data = new DataSet();
         data.addAll(builder.getDataSets()[1]);
         data.addAll(builder.getDataSets()[2]);
         data.addAll(builder.getDataSets()[3]);
         data.addAll(builder.getDataSets()[4]);
+//        data.sort(new Comparator<Document>() {
+//
+//            @Override
+//            public int compare(Document o1, Document o2) {
+//                String firstExt = Utils.getFileExt(o1.getName());
+//                String secondsExt = Utils.getFileExt(o2.getName());
+//                return firstExt.compareTo(secondsExt);
+//            }
+//        });
 
-        NeuralNetworkTrainer trainer = new NeuralNetworkTrainer();
+        NeuralNetworkTrainer trainer = new NeuralNetworkTrainer(1200);
         TrainingModel model = trainer.train(data);
-        
-        Document doc = builder.getDataSets()[0].get(102);
+
+        Document doc = builder.getDataSets()[1].get(70);
         PredictResult rs = model.predict(doc);
-        rs.getLabel().print(15, 8);
-        trainer.showW1();
-        trainer.showW2();
+//        trainer.showW1();
+//        trainer.showW2();
         System.out.println("Test: " + doc.getName());
         rs.getLabel().print(15, 8);
         doc.getLabel().print(15, 8);
@@ -178,7 +176,7 @@ public class DataSetBuilder {
         doc.setLabel(new Matrix(new double[][]{{0}}));
         data.add(doc);
 
-        NeuralNetworkTrainer trainer = new NeuralNetworkTrainer();
+        NeuralNetworkTrainer trainer = new NeuralNetworkTrainer(5);
         TrainingModel model = trainer.train(data);
         trainer.showW1();
         trainer.showW2();

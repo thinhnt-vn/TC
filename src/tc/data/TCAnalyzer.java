@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.file.Paths;
+import java.util.Date;
 
 /**
  * This analyzer includes Vietnamese tokenizer, Stopword filter, and lower case
@@ -32,7 +33,7 @@ public class TCAnalyzer extends Analyzer {
     
     public static void main(String[] args) throws FileNotFoundException {
         Analyzer analyzer = new TCAnalyzer();
-        TokenStream ts = analyzer.tokenStream(new BufferedReader(new FileReader("data/30.tt")));
+        TokenStream ts = analyzer.tokenStream(new BufferedReader(new FileReader("data/0.tt")));
         String token = null;
         while ((token = ts.increaseToken()) != null) {            
             System.out.print(token + "|");

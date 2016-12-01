@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Load data to document and count the words in document
+ * Load data to document, add doc to data set and count the words in document
  *
  * @author thinhnt
  */
@@ -37,7 +37,7 @@ public class DocumentLoader {
 
     public void load(Document doc) {
         TokenStream ts = analyzer.tokenStream(doc.getReader());
-        String fileExt = doc.getName().split("\\.")[1];
+        String fileExt = Utils.getFileExt(doc.getName());
         Matrix label = null;
         DataSet addedSet = null;
         switch (fileExt) {
@@ -85,5 +85,9 @@ public class DocumentLoader {
 
     public DataSet getTechSet() {
         return techSet;
+    }
+    
+    public void reset(){
+        
     }
 }

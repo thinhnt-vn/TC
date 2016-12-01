@@ -13,6 +13,8 @@ import java.util.ArrayList;
  */
 public class DataSet extends ArrayList<Document> {
 
+    private DataSetMetaData metaData;
+    
     public DataSet getSubSet(int totalPart, int part) {
         DataSet rs = new DataSet();
         int partSize = size() / totalPart;
@@ -24,4 +26,11 @@ public class DataSet extends ArrayList<Document> {
         return rs;
     }
 
+    public void setMetaData(DataSetMetaData metaData){
+        this.metaData = metaData;
+    }
+
+    public DataSetMetaData getMetaData() {
+        return metaData;
+    }
 }

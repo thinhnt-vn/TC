@@ -15,9 +15,9 @@ public interface PredictResult {
     
     /**
      * 
-     * @return string describe 
+     * @return string describe this result 
      */
-    public String str();
+    public String getDesciption();
     
     /**
      * 

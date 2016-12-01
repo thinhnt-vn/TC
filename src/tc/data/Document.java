@@ -7,6 +7,7 @@ package tc.data;
 
 import Jama.Matrix;
 import java.io.BufferedReader;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,10 +15,10 @@ import java.util.Map;
  *
  * @author thinhnt
  */
-public class Document {
+public class Document implements Serializable{
 
     private String name;
-    private BufferedReader reader;
+    transient private BufferedReader reader;
     private Map<String, Integer> tokensInDoc;
     private int docLength;
     private Matrix label;

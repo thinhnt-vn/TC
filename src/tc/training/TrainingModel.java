@@ -5,14 +5,19 @@
  */
 package tc.training;
 
+import java.io.Serializable;
 import tc.data.Document;
 
 /**
  *
  * @author thinhnt
  */
-public interface TrainingModel {
+public interface TrainingModel extends Serializable{
     
     PredictResult predict(Document doc);
+    
+    String getDescription();
+    
+    void setDescription(String des);
     
 }

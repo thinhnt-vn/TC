@@ -5,11 +5,13 @@
  */
 package tc.training;
 
+import java.io.Serializable;
+
 /**
  *
  * @author thinhnt
  */
-public interface TranferFunction {
+public interface TranferFunction extends Serializable{
 
     double tranfer(double input);
 
