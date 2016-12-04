@@ -88,6 +88,11 @@ public class Utils {
         return  df.format(new Date());
     }
     
+    /**
+     * return index of max value in a array
+     * @param arr
+     * @return 
+     */
     public static int max(double [] arr){
         int maxIndex = 0;
         double maxValue = arr[maxIndex];

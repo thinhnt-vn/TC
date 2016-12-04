@@ -17,7 +17,7 @@ public class DataSet extends ArrayList<Document> {
     
     public DataSet getSubSet(int totalPart, int part) {
         DataSet rs = new DataSet();
-        int partSize = size() / totalPart;
+        int partSize = size() / totalPart + 1;
         int startPos = (part - 1) * partSize;
         int endPos = part == totalPart ? size() : part * partSize;
         for (int i = startPos; i < endPos; i++) {

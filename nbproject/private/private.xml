@@ -4,19 +4,31 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/constances/TCConstances.java</file>
-            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/training/TrainingModel.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/training/NeuralNetworkTrainer.java</file>
-            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/Utils.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/data/771.cn</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/training/TranferFunction.java</file>
-            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/gui/MainGui.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/data/419.kt</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/training/NeuralNetworkModel.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/Document.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/DocumentLoader.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/DataSetBuilder.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/URLParser.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/TCAnalyzer.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/data/760.cn</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/DataSetMetaData.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/assessment/CrossValidateAssessor.java</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/DataSet.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/assessment/AssessmentGraph.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/training/Function.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/assessment/AssessmentResult.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/training/TrainingModel.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/data/Utils.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/gui/MainGui.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/assessment/PRGraph.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/data/740.cn</file>
             <file>file:/C:/Users/toant_000/Documents/Java/TC/src/tc/training/PredictResult.java</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/data/731.cn</file>
+            <file>file:/C:/Users/toant_000/Documents/Java/TC/data/406.kt</file>
         </group>
     </open-files>
 </project-private>

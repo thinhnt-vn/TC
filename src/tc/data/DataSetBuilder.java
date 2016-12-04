@@ -10,9 +10,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,9 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tc.assessment.AssessmentResult;
+import tc.assessment.CrossValidateAssessor;
+import tc.constances.TCConstances;
 import tc.training.NeuralNetworkTrainer;
 import tc.training.PredictResult;
 import tc.training.TrainingModel;
@@ -111,7 +116,7 @@ public class DataSetBuilder implements Serializable {
 //            }
 //        });
 //        builder.build();
-
+//
 //        ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream("databuider"));
 //        stream.writeObject(builder);
 //        stream.close();
@@ -119,33 +124,37 @@ public class DataSetBuilder implements Serializable {
         ObjectInputStream stream = new ObjectInputStream(new FileInputStream("databuider"));
         DataSetBuilder builder = (DataSetBuilder) stream.readObject();
         stream.close();
+
+        CrossValidateAssessor assessor = new CrossValidateAssessor(builder.getDataSets(), new NeuralNetworkTrainer(1200));
+        AssessmentResult rs = assessor.assess();
+
         
-        DataSet data = new DataSet();
-        data.addAll(builder.getDataSets()[1]);
-        data.addAll(builder.getDataSets()[2]);
-        data.addAll(builder.getDataSets()[3]);
-        data.addAll(builder.getDataSets()[4]);
-//        data.sort(new Comparator<Document>() {
+
+//        DataSet data = new DataSet();
+//        data.addAll(builder.getDataSets()[1]);
+//        data.addAll(builder.getDataSets()[2]);
+//        data.addAll(builder.getDataSets()[3]);
+//        data.addAll(builder.getDataSets()[4]);
+////        data.sort(new Comparator<Document>() {
+////
+////            @Override
+////            public int compare(Document o1, Document o2) {
+////                String firstExt = Utils.getFileExt(o1.getName());
+////                String secondsExt = Utils.getFileExt(o2.getName());
+////                return firstExt.compareTo(secondsExt);
+////            }
+////        });
 //
-//            @Override
-//            public int compare(Document o1, Document o2) {
-//                String firstExt = Utils.getFileExt(o1.getName());
-//                String secondsExt = Utils.getFileExt(o2.getName());
-//                return firstExt.compareTo(secondsExt);
-//            }
-//        });
-
-        NeuralNetworkTrainer trainer = new NeuralNetworkTrainer(1200);
-        TrainingModel model = trainer.train(data);
-
-        Document doc = builder.getDataSets()[1].get(70);
-        PredictResult rs = model.predict(doc);
-//        trainer.showW1();
-//        trainer.showW2();
-        System.out.println("Test: " + doc.getName());
-        rs.getLabel().print(15, 8);
-        doc.getLabel().print(15, 8);
-
+//        NeuralNetworkTrainer trainer = new NeuralNetworkTrainer(1200);
+//        TrainingModel model = trainer.train(data);
+//
+//        Document doc = builder.getDataSets()[1].get(70);
+//        PredictResult rs = model.predict(doc);
+////        trainer.showW1();
+////        trainer.showW2();
+//        System.out.println("Test: " + doc.getName());
+//        rs.getLabel().print(15, 8);
+//        doc.getLabel().print(15, 8);
 //        testScilab();
     }
 

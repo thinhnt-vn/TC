@@ -5,6 +5,7 @@
  */
 package tc.gui;
 
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +23,10 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
+import tc.assessment.AssessmentGraph;
+import tc.assessment.AssessmentResult;
+import tc.assessment.CrossValidateAssessor;
+import tc.assessment.PRGraph;
 import tc.constances.TCConstances;
 import tc.data.Analyzer;
 import tc.data.DataSet;
@@ -31,6 +36,7 @@ import tc.data.Document;
 import tc.data.DocumentLoader;
 import tc.data.TCAnalyzer;
 import tc.data.TokenStream;
+import tc.data.URLParser;
 import tc.data.Utils;
 import tc.training.NeuralNetworkModel;
 import tc.training.NeuralNetworkTrainer;
@@ -44,6 +50,9 @@ import tc.training.TrainingModel;
 public class MainGui extends javax.swing.JFrame {
 
     private TrainingModel model;
+    private URLParser vnExpParser;
+    private URLParser thanhnienParser;
+    private URLParser twentyfourParser;
 
     /**
      * Creates new form MainGui
@@ -51,6 +60,18 @@ public class MainGui extends javax.swing.JFrame {
     public MainGui() {
         initComponents();
         setLocationRelativeTo(null);
+        vnExpParser = new URLParser();
+        vnExpParser.addSelector("#left_calculator");
+        vnExpParser.addSelector(".fck_detail.width_common");
+        vnExpParser.addSelector(".fck_detail.width_common.block_ads_connect");
+        vnExpParser.addSelector(".main_content_detail.width_common");
+
+        thanhnienParser = new URLParser();
+        thanhnienParser.addSelector(".content");
+        thanhnienParser.addSelector(".details-content.article-content");
+
+        twentyfourParser = new URLParser();
+        twentyfourParser.addSelector(".text-conent");
     }
 
     /**
@@ -151,6 +172,11 @@ public class MainGui extends javax.swing.JFrame {
 
         assessmentItem.setText("Assessment");
         assessmentItem.setIcon(Icon.createImageIcon(Icon.ASSESSMENT_ICON_PATH, "Assessment the application"));
+        assessmentItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                assessmentItemActionPerformed(evt);
+            }
+        });
         appMenu.add(assessmentItem);
 
         menuBar.add(appMenu);
@@ -166,17 +192,27 @@ public class MainGui extends javax.swing.JFrame {
     }//GEN-LAST:event_exitItemActionPerformed
 
     private void classifyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_classifyButtonActionPerformed
-        if (model == null){
+        if (model == null) {
             JOptionPane.showMessageDialog(this, "Please train or load a new neural "
                     + "network model", "Message", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        
+
         String text = inputTextPanel.getText();
-        if (text.matches(TCConstances.URL_REG)){
-            System.out.println("URL");
+        if (text.matches(TCConstances.URL_REG)) {
+            try {
+                if (text.contains("24h.com.vn")) {
+                    text = twentyfourParser.parse(text);
+                } else if (text.contains("thanhnien.vn")) {
+                    text = thanhnienParser.parse(text);
+                }else if (text.contains("vnexpress.net")){
+                    text = vnExpParser.parse(text);
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(MainGui.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        
+        System.out.println(text);
         Document doc = new Document(null, new BufferedReader(new StringReader(text)));
         Analyzer analyzer = new TCAnalyzer();
         TokenStream ts = analyzer.tokenStream(doc.getReader());
@@ -184,10 +220,10 @@ public class MainGui extends javax.swing.JFrame {
         while ((token = ts.increaseToken()) != null) {
             doc.addToken(token);
         }
-        
-        DataSetMetaData metaData = ((NeuralNetworkModel)model).getMetaData();
+
+        DataSetMetaData metaData = ((NeuralNetworkModel) model).getMetaData();
         Utils.tfidf4Doc(doc, metaData.getTotalDoc(), metaData.getDocCount(), metaData.getFeatureWords());
-        
+
         PredictResult rs = model.predict(doc);
         JOptionPane.showMessageDialog(this, rs.getDesciption(), "Result", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_classifyButtonActionPerformed
@@ -291,16 +327,52 @@ public class MainGui extends javax.swing.JFrame {
             data.addAll(builder.getDataSets()[2]);
             data.addAll(builder.getDataSets()[3]);
             data.addAll(builder.getDataSets()[4]);
-            
+
             data.setMetaData(new DataSetMetaData(builder.getFeatureWords(), data.size(),
                     DocumentLoader.docCount));
-            
+
             NeuralNetworkTrainer trainer = new NeuralNetworkTrainer(1457);
             model = trainer.train(data);
             model.setDescription(Utils.getTime());
             modelLabel.setText(modelLabel.getText() + model.getDescription());
         }
     }//GEN-LAST:event_trainItemActionPerformed
+
+    private void assessmentItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_assessmentItemActionPerformed
+        JFileChooser chooser = new JFileChooser(new File(TCConstances.Path.DATA_PATH));
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+        int click = chooser.showOpenDialog(this);
+        if (click == JFileChooser.APPROVE_OPTION) {
+            File dataDir = chooser.getSelectedFile();
+            DataSetBuilder builder = new DataSetBuilder(dataDir.getAbsolutePath(), (File t) -> {
+                String name1 = t.getName();
+                return name1.endsWith(".tt") || name1.endsWith(".kt") || name1.endsWith(".pl")
+                        || name1.endsWith(".cn");
+            });
+
+            builder.build();
+
+            CrossValidateAssessor assessor = new CrossValidateAssessor(
+                    builder.getDataSets(), new NeuralNetworkTrainer(1200));
+            AssessmentResult result = assessor.assess();
+
+            double[] precision = result.getPrecision();
+            double[] recall = result.getRecall();
+
+            Point2D[] points = new Point2D[precision.length];
+            for (int i = 0; i < points.length; i++) {
+                points[i] = new Point2D.Double(recall[i], precision[i]);
+            }
+
+            AssessmentGraph graph = new AssessmentGraph();
+            PRGraph graphPanel = new PRGraph(graph.getWidth(), graph.getHeight());
+            graphPanel.setCuvesPoints(points);
+            graph.setContentPane(graphPanel);
+            graph.setVisible(true);
+        }
+
+    }//GEN-LAST:event_assessmentItemActionPerformed
 
     /**
      * @param args the command line arguments

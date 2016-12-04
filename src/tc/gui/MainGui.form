@@ -68,6 +68,9 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Assessment"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="assessmentItemActionPerformed"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="assessmentItem.setIcon(Icon.createImageIcon(Icon.ASSESSMENT_ICON_PATH, &quot;Assessment the application&quot;));"/>
               </AuxValues>
