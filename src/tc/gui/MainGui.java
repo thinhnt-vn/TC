@@ -14,12 +14,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StringReader;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.IntStream.builder;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
@@ -53,6 +55,7 @@ public class MainGui extends javax.swing.JFrame {
     private URLParser vnExpParser;
     private URLParser thanhnienParser;
     private URLParser twentyfourParser;
+    private final static String MODEL_LABEL = "Model:";
 
     /**
      * Creates new form MainGui
@@ -205,7 +208,7 @@ public class MainGui extends javax.swing.JFrame {
                     text = twentyfourParser.parse(text);
                 } else if (text.contains("thanhnien.vn")) {
                     text = thanhnienParser.parse(text);
-                }else if (text.contains("vnexpress.net")){
+                } else if (text.contains("vnexpress.net")) {
                     text = vnExpParser.parse(text);
                 }
             } catch (IOException ex) {
@@ -253,7 +256,7 @@ public class MainGui extends javax.swing.JFrame {
                 stream = new ObjectInputStream(new FileInputStream(chooser.getSelectedFile()));
                 model = (TrainingModel) stream.readObject();
                 stream.close();
-                modelLabel.setText(modelLabel.getText() + model.getDescription());
+                modelLabel.setText(MODEL_LABEL + model.getDescription());
             } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(MainGui.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
@@ -312,29 +315,52 @@ public class MainGui extends javax.swing.JFrame {
 
         int click = chooser.showOpenDialog(this);
         if (click == JFileChooser.APPROVE_OPTION) {
-            File dataDir = chooser.getSelectedFile();
-            DataSetBuilder builder = new DataSetBuilder(dataDir.getAbsolutePath(), (File t) -> {
-                String name1 = t.getName();
-                return name1.endsWith(".tt") || name1.endsWith(".kt") || name1.endsWith(".pl")
-                        || name1.endsWith(".cn");
-            });
+            trainItem.setEnabled(false);
+            ProgressFrame.instance().showProgressBar();
+            new TCWorker() {
 
-            builder.build();
+                @Override
+                protected void doTask() {
+                    File dataDir = chooser.getSelectedFile();
+                    DataSetBuilder builder = new DataSetBuilder(dataDir.getAbsolutePath(), (File t) -> {
+                        String name1 = t.getName();
+                        return name1.endsWith(".tt") || name1.endsWith(".kt") || name1.endsWith(".pl")
+                                || name1.endsWith(".cn");
+                    });
+                    builder.build();
 
-            DataSet data = new DataSet();
-            data.addAll(builder.getDataSets()[0]);
-            data.addAll(builder.getDataSets()[1]);
-            data.addAll(builder.getDataSets()[2]);
-            data.addAll(builder.getDataSets()[3]);
-            data.addAll(builder.getDataSets()[4]);
+                    DataSet data = new DataSet();
+                    data.addAll(builder.getDataSets()[0]);
+                    data.addAll(builder.getDataSets()[1]);
+                    data.addAll(builder.getDataSets()[2]);
+                    data.addAll(builder.getDataSets()[3]);
+                    data.addAll(builder.getDataSets()[4]);
 
-            data.setMetaData(new DataSetMetaData(builder.getFeatureWords(), data.size(),
-                    DocumentLoader.docCount));
+                    data.setMetaData(new DataSetMetaData(builder.getFeatureWords(), data.size(),
+                            DocumentLoader.docCount));
 
-            NeuralNetworkTrainer trainer = new NeuralNetworkTrainer(1457);
-            model = trainer.train(data);
-            model.setDescription(Utils.getTime());
-            modelLabel.setText(modelLabel.getText() + model.getDescription());
+                    NeuralNetworkTrainer trainer = new NeuralNetworkTrainer(1457);
+                    model = trainer.train(data);
+                    model.setDescription(Utils.getTime());
+                }
+
+                @Override
+                protected void process(List<String> chunks) {
+                    super.process(chunks); //To change body of generated methods, choose Tools | Templates.
+                    String str = chunks.get(chunks.size() - 1);
+                    ProgressFrame.instance().setString(str);
+                }
+
+                @Override
+                protected void done() {
+                    super.done(); //To change body of generated methods, choose Tools | Templates.
+                    ProgressFrame.instance().hideProgressBar();
+                    modelLabel.setText(MODEL_LABEL + model.getDescription());
+                    trainItem.setEnabled(true);
+                }
+
+            }.execute();
+
         }
     }//GEN-LAST:event_trainItemActionPerformed
 
@@ -344,32 +370,56 @@ public class MainGui extends javax.swing.JFrame {
 
         int click = chooser.showOpenDialog(this);
         if (click == JFileChooser.APPROVE_OPTION) {
-            File dataDir = chooser.getSelectedFile();
-            DataSetBuilder builder = new DataSetBuilder(dataDir.getAbsolutePath(), (File t) -> {
-                String name1 = t.getName();
-                return name1.endsWith(".tt") || name1.endsWith(".kt") || name1.endsWith(".pl")
-                        || name1.endsWith(".cn");
-            });
+            assessmentItem.setEnabled(false);
+            ProgressFrame.instance().showProgressBar();
+            new TCWorker() {
+                Point2D[] points;
 
-            builder.build();
+                @Override
+                protected void doTask() {
+                    File dataDir = chooser.getSelectedFile();
+                    DataSetBuilder builder = new DataSetBuilder(dataDir.getAbsolutePath(), (File t) -> {
+                        String name1 = t.getName();
+                        return name1.endsWith(".tt") || name1.endsWith(".kt") || name1.endsWith(".pl")
+                                || name1.endsWith(".cn");
+                    });
 
-            CrossValidateAssessor assessor = new CrossValidateAssessor(
-                    builder.getDataSets(), new NeuralNetworkTrainer(1200));
-            AssessmentResult result = assessor.assess();
+                    builder.build();
 
-            double[] precision = result.getPrecision();
-            double[] recall = result.getRecall();
+                    CrossValidateAssessor assessor = new CrossValidateAssessor(
+                            builder.getDataSets(), new NeuralNetworkTrainer(1200));
+                    AssessmentResult result = assessor.assess();
 
-            Point2D[] points = new Point2D[precision.length];
-            for (int i = 0; i < points.length; i++) {
-                points[i] = new Point2D.Double(recall[i], precision[i]);
-            }
+                    double[] precision = result.getPrecision();
+                    double[] recall = result.getRecall();
 
-            AssessmentGraph graph = new AssessmentGraph();
-            PRGraph graphPanel = new PRGraph(graph.getWidth(), graph.getHeight());
-            graphPanel.setCuvesPoints(points);
-            graph.setContentPane(graphPanel);
-            graph.setVisible(true);
+                    points = new Point2D[precision.length];
+                    for (int i = 0; i < points.length; i++) {
+                        points[i] = new Point2D.Double(recall[i], precision[i]);
+                    }
+                }
+
+                @Override
+                protected void process(List<String> chunks) {
+                    super.process(chunks); //To change body of generated methods, choose Tools | Templates.
+                    String str = chunks.get(chunks.size() - 1);
+                    ProgressFrame.instance().setString(str);
+                }
+
+                @Override
+                protected void done() {
+                    super.done(); //To change body of generated methods, choose Tools | Templates.
+                    assessmentItem.setEnabled(true);
+                    ProgressFrame.instance().hideProgressBar();
+                    AssessmentGraph graph = new AssessmentGraph();
+                    PRGraph graphPanel = new PRGraph(graph.getWidth(), graph.getHeight());
+                    graphPanel.setCuvesPoints(points);
+                    graph.setContentPane(graphPanel);
+                    graph.setVisible(true);
+                }
+
+            }.execute();
+
         }
 
     }//GEN-LAST:event_assessmentItemActionPerformed
