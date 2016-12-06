@@ -55,6 +55,7 @@ public class MainGui extends javax.swing.JFrame {
     private URLParser vnExpParser;
     private URLParser thanhnienParser;
     private URLParser twentyfourParser;
+    private URLParser tuoitreParser;
     private final static String MODEL_LABEL = "Model:";
 
     /**
@@ -62,7 +63,11 @@ public class MainGui extends javax.swing.JFrame {
      */
     public MainGui() {
         initComponents();
+        initParsers();
         setLocationRelativeTo(null);
+    }
+    
+    private void initParsers(){
         vnExpParser = new URLParser();
         vnExpParser.addSelector("#left_calculator");
         vnExpParser.addSelector(".fck_detail.width_common");
@@ -75,7 +80,11 @@ public class MainGui extends javax.swing.JFrame {
 
         twentyfourParser = new URLParser();
         twentyfourParser.addSelector(".text-conent");
+        
+        tuoitreParser = new URLParser();
+        tuoitreParser.addSelector(".fck");
     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -210,6 +219,8 @@ public class MainGui extends javax.swing.JFrame {
                     text = thanhnienParser.parse(text);
                 } else if (text.contains("vnexpress.net")) {
                     text = vnExpParser.parse(text);
+                }else if (text.contains("tuoitre.vn")) {
+                    text = tuoitreParser.parse(text);
                 }
             } catch (IOException ex) {
                 Logger.getLogger(MainGui.class.getName()).log(Level.SEVERE, null, ex);
